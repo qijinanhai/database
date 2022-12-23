@@ -15,6 +15,8 @@ def click_btn_merchant(user_id, sell_id):
                                   db_name=MYSQL_DB_NAME)
     method=0
     consign_setting = 0
+    user_category=0
+
 
     user_address = mysql.findAll('select add_info from address where user_id = ' + user_id)
     user_category = mysql.findAll('select is_Vip from user where user_id = ' + user_id)[0]
@@ -26,7 +28,6 @@ def click_btn_merchant(user_id, sell_id):
         '选择你的配送地址',
         address_list)
     '### 你的选择是:', option
-    st.write(user_category)
     if user_category == 1:
         option1 = st.sidebar.selectbox(
             '选择你的配送方式',
@@ -37,8 +38,6 @@ def click_btn_merchant(user_id, sell_id):
             '选择你的配送方式',
             ['一次性配送'])
         '### 你的选择是:', option1
-
-
 
     if option1 == '逐日多次配送':
         method=1
@@ -95,13 +94,15 @@ def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_add
         data_consign['get_state'] = 0
         data_consign['consign_amount'] = consign_setting
         while (amount_lag - consign_setting) > 0:
-            data_consign['se_time'] = datetime.datetime.strftime(time_stamp + datetime.timedelta(days=1) ,'%Y-%m-%d %H:%M:%S')
+            time_stamp = time_stamp + datetime.timedelta(days=1)
+            data_consign['se_time'] = datetime.datetime.strftime(time_stamp,'%Y-%m-%d %H:%M:%S')
             data_consign['consign_amount'] = consign_setting
             mysql.save('consign_info', data_consign)
             amount_lag = amount_lag - consign_setting
 
         if amount_lag > 0:
-            data_consign['se_time'] = datetime.datetime.strftime(time_stamp + datetime.timedelta(days=1) ,'%Y-%m-%d %H:%M:%S')
+            time_stamp = time_stamp + datetime.timedelta(days=1)
+            data_consign['se_time'] = datetime.datetime.strftime(time_stamp, '%Y-%m-%d %H:%M:%S')
             data_consign['consign_amount'] = amount_lag
             mysql.save('consign_info', data_consign)
 
