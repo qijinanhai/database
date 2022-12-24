@@ -46,7 +46,7 @@ def click_btn_merchant(user_id, sell_id):
     mer_info = mysql.findAll('select * from merchants where mer_id = ' + sell_id)[0]
     data = mysql.findAll('select * from products where mer_id = ' + sell_id)
     temp_pd = pd.DataFrame(list(data))
-    temp_pd.columns = ['产品号', '产品名称', '产品价格', '库存量', '生产地', '生产日期', '保质期', '商家号']
+    temp_pd.columns = ['产品号', '产品名称', '产品价格', '库存量', '生产地', '生产日期', '保质期', '商家号', '产品大类']
     with st.container():
         col1, col2, col3 = st.columns([4, 1, 1])
         # 初始化展示几个商品  购买按钮，数量按钮，

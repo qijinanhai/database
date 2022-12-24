@@ -55,11 +55,12 @@ def search_box():
 
     if btn_flag_1:
         try:
-            data_search = mysql.findAll('select * from products where pro_name = "' + search + '" order by stock DESC LIMIT 1,10')
+            data_search = mysql.findAll(
+                'select * from products where pro_name = "' + search + '" order by stock DESC LIMIT 1,10')
         except:
             st.error('没有该商品', icon="🚨")
         temp_pd = pd.DataFrame(list(data_search))
-        temp_pd.columns = ['产品号', '产品名称', '产品价格', '库存量', '生产地', '生产日期', '保质期', '商家号']
+        temp_pd.columns = ['产品号', '产品名称', '产品价格', '库存量', '生产地', '生产日期', '保质期', '商家号', '产品大类']
         with st.container():
             col1, col2, col3 = st.columns([4, 1, 1])
             search_dict = locals()
@@ -72,10 +73,9 @@ def search_box():
             with col3:
                 for i in range(0, len(data_search)):
                     st.button(label='购买', key=str(i), on_click=purchase,
-                              args=(data_search[i], amount_dict['amount' + str(i)], user_id, data_search[i][-1], mysql, method, option,
-                                 consign_setting))
-
-
+                              args=(data_search[i], amount_dict['amount' + str(i)], user_id, data_search[i][-2], mysql,
+                                    method, option,
+                                    consign_setting))
 
     # option = st.selectbox(
     #     '选择商品大类',
@@ -89,8 +89,8 @@ def app():
     search_box()
 
 
-def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_address , consign_setting):
-    mer_address = mysql.findOne('select mer_address from merchants where mer_id = '+str(seller_id))[0]
+def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_address, consign_setting):
+    mer_address = mysql.findOne('select mer_address from merchants where mer_id = ' + str(seller_id))[0]
     st.write(mer_address)
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     mysql.exec('update products set stock=stock-' + str(amount_demo) + ' where pro_id =' + str(good_info[0]))
@@ -106,8 +106,7 @@ def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_add
 
     temp_now = now.replace(' ', '').replace(':', '').replace('-', '').strip()
     orderid = mysql.findAll(
-        "select order_id from orders where trim(replace(replace(replace(order_date,' ',''),':',''),'-','')) = " + temp_now)[
-        0][0]
+        "select order_id from orders where trim(replace(replace(replace(order_date,' ',''),':',''),'-','')) = " + temp_now)[0][0]
     # DATE_FORMAT(order_date, '+' % Y - % m - % d % H: % M: % S)
     amount_lag = amount_demo
     time_stamp = datetime.datetime.strptime(now, '%Y-%m-%d %H:%M:%S') + datetime.timedelta(days=-1)
