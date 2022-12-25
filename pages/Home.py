@@ -6,8 +6,10 @@ import datetime
 from multipage import MultiPage
 
 
-# class Home_Create:
-#     def __init__(self):
+def app():
+    search_box()
+
+
 def search_box():
     mysql = MySqlUtils.MysqlClass(server=MYSQL_SERVER_IP,
                                   port=MYSQL_SERVER_PORT,
@@ -77,17 +79,6 @@ def search_box():
                                     method, option,
                                     consign_setting))
 
-    # option = st.selectbox(
-    #     '选择商品大类',
-    #     ['水果','生鲜','牛奶','酒水'])
-
-    # elif btn_flag=='物品种类':
-    #     st.write(mysql.findAll('select * from table_name where categroy =' + search))  #搜索前十个  ！！！！！！！！！！！
-
-
-def app():
-    search_box()
-
 
 def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_address, consign_setting):
     mer_address = mysql.findOne('select mer_address from merchants where mer_id = ' + str(seller_id))[0]
@@ -106,7 +97,17 @@ def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_add
 
     temp_now = now.replace(' ', '').replace(':', '').replace('-', '').strip()
     orderid = mysql.findAll(
-        "select order_id from orders where trim(replace(replace(replace(order_date,' ',''),':',''),'-','')) = " + temp_now)[0][0]
+        "select order_id from orders where trim(replace(replace(replace(order_date,' ',''),':',''),'-','')) = " + temp_now)[
+        0][0]
+
+    data_order1 = {}
+    data_order1['user_id'] = user_id
+    data_order1['mer_id'] = seller_id  # 1,0
+    data_order1['pay_amount'] = good_info[2] * amount_demo
+    data_order1['pay_info'] = '无'
+    data_order1['order_id'] = orderid
+    mysql.save('payment', data_order1)
+
     # DATE_FORMAT(order_date, '+' % Y - % m - % d % H: % M: % S)
     amount_lag = amount_demo
     time_stamp = datetime.datetime.strptime(now, '%Y-%m-%d %H:%M:%S') + datetime.timedelta(days=-1)
@@ -124,14 +125,14 @@ def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_add
             time_stamp = time_stamp + datetime.timedelta(days=1)
             data_consign['se_time'] = datetime.datetime.strftime(time_stamp, '%Y-%m-%d %H:%M:%S')
             data_consign['consign_amount'] = consign_setting
-            mysql.save('consign_info', data_consign)
+            mysql.save('consign_info1', data_consign)
             amount_lag = amount_lag - consign_setting
 
         if amount_lag > 0:
             time_stamp = time_stamp + datetime.timedelta(days=1)
             data_consign['se_time'] = datetime.datetime.strftime(time_stamp, '%Y-%m-%d %H:%M:%S')
             data_consign['consign_amount'] = amount_lag
-            mysql.save('consign_info', data_consign)
+            mysql.save('consign_info1', data_consign)
 
     elif method == 0:
         data_consign = {}
@@ -143,4 +144,4 @@ def purchase(good_info, amount_demo, user_id, seller_id, mysql, method, user_add
         data_consign['user_id'] = user_id
         data_consign['get_state'] = 0
         data_consign['consign_amount'] = amount_demo
-        mysql.save('consign_info', data_consign)
+        mysql.save('consign_info1', data_consign)

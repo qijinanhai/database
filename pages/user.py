@@ -60,7 +60,8 @@ def app():
 
 # 查看已购买的订单
 def cancel_order(order_id, mysql):
-    mysql.exec('delete from consign_info where order_id = ' + str(order_id))
+    mysql.exec('delete from payment where order_id = ' + str(order_id))
+    mysql.exec('delete from consign_info1 where order_id = ' + str(order_id))
     mysql.exec('delete from orders where order_id = ' + str(order_id))
 
 
@@ -69,7 +70,7 @@ def cancel_order(order_id, mysql):
 def goon_order(data, mysql):
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     consign_data = mysql.findAll(
-        'select con_id,se_add,re_add,se_time,consign_amount,get_state from consign_info where order_id = ' + str(data[0]))
+        'select con_id,se_add,re_add,se_time,consign_amount,get_state from consign_info1 where order_id = ' + str(data[0]))
     # st.write(consign_data)
     consign_data=consign_data[0]
     mysql.exec('update products set stock=stock-' + str(data[1]) + ' where pro_id =' + str(data[4]))
@@ -105,14 +106,14 @@ def goon_order(data, mysql):
             data_consign['se_time'] = datetime.datetime.strftime(time_stamp + datetime.timedelta(days=1),
                                                                  '%Y-%m-%d %H:%M:%S')
             data_consign['consign_amount'] = consign_setting
-            mysql.save('consign_info', data_consign)
+            mysql.save('consign_info1', data_consign)
             amount_lag = amount_lag - consign_setting
 
         if amount_lag > 0:
             data_consign['se_time'] = datetime.datetime.strftime(time_stamp + datetime.timedelta(days=1),
                                                                  '%Y-%m-%d %H:%M:%S')
             data_consign['consign_amount'] = amount_lag
-            mysql.save('consign_info', data_consign)
+            mysql.save('consign_info1', data_consign)
 
     elif data[2] == 0:
         data_consign = {}
@@ -124,7 +125,7 @@ def goon_order(data, mysql):
         data_consign['user_id'] = data[5]
         data_consign['get_state'] = 0
         data_consign['consign_amount'] = data[1]
-        mysql.save('consign_info', data_consign)
+        mysql.save('consign_info1', data_consign)
 
 
 def delete_address(address_id, mysql):
